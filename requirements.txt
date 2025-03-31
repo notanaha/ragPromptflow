@@ -1,0 +1,4 @@
+promptflow_vectordb[azure]
+promptflow
+promptflow-tools
+python-dotenv

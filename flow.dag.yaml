@@ -1,0 +1,166 @@
+id: bring_your_own_data_chat_qna
+name: Bring Your Own Data Chat QnA
+environment:
+  python_requirements_txt: requirements.txt
+environment_variables:
+  BUILD_INFO: '{"build_number":0}'
+inputs:
+  chat_history:
+    type: list
+    default:
+    - inputs:
+        chat_input: こんにちは
+      outputs:
+        chat_output: こんにちは！何かお手伝いできることはありますか？
+    - inputs:
+        chat_input: パーキングブレーキについて教えてください。
+      outputs:
+        chat_output: >-
+          パーキングブレーキに関する情報は以下の通りです。 操作方法 - パーキングブレーキをかける：
+          右足でブレーキペダルを踏みながら、左足でパーキングペダルをいっぱいまで踏み込む。 - パーキングブレーキを解除する：
+          再度パーキングペダルを踏み込むことで解除される。
+
+          注意事項 - 走行前の注意： パーキングブレーキを完全に解除してください。解除せずに走行すると、ブレーキ部品が過熱し、ブレーキの効きが悪くなったり、早く摩耗したりする可能性があります。 - 冬季の使用： 冬季のパーキングブレーキの使用については、特別な注意が必要です（詳細は該当ページを参照）。
+
+          警告機能 - パーキングブレーキ未解除走行時警告ブザー： パーキングブレーキを解除しないまま車を発進させ、車速が約5km/h以上になると警告ブザーが鳴ります。
+
+          駐車時の手順 1. 車を完全に停止させる。 2. パーキングブレーキをかける。 3. シフトポジションを「P」にする。 4. パワースイッチを押してハイブリッドシステムを停止する。 5. ブレーキペダルからゆっくり足を離す。 6. 電子キーを携帯していることを確認し、ドアを施錠する。
+
+          上り坂での発進方法 1. ブレーキペダルを踏んだまま、パーキングブレーキをしっかりかけ、シフトポジションを「D」にする。 2. ブレーキペダルから足を離し、アクセルペダルをゆっくり踏む。 3. 車が動き出す感触を確認したら、パーキングブレーキを解除し発進する。
+
+          その他の注意点 - 車を降りる際は、シフトポジション表示灯が「P」であることと、パーキングブレーキがかかっていることを確認してください。 - 坂道で駐車する場合は、必要に応じて輪止めを使用してください。
+
+          関連情報 - パーキングブレーキの操作に関する詳細は、車両の取扱説明書を参照してください。
+    is_chat_input: false
+    is_chat_history: true
+  chat_input:
+    type: string
+    default: PCS警告灯が点滅または点灯する場合の対処法
+    is_chat_input: true
+outputs:
+  chat_output:
+    type: string
+    reference: ${chat_with_context.output}
+    is_chat_output: true
+nodes:
+- name: modify_query_with_history
+  type: llm
+  source:
+    type: code
+    path: modify_query_with_history.jinja2
+  inputs:
+    deployment_name: gpt-4o-mini
+    temperature: 0
+    top_p: 1
+    max_tokens: 1000
+    response_format:
+      type: text
+    presence_penalty: 0
+    frequency_penalty: 0
+    chat_history: ${inputs.chat_history}
+    chat_input: ${inputs.chat_input}
+  connection: <###aoai_local_connection_name###>
+  api: chat
+  use_variants: false
+- name: lookup
+  type: python
+  source:
+    type: package
+    tool: promptflow_vectordb.tool.common_index_lookup.search
+  inputs:
+    mlindex_content: >
+      embeddings:
+        api_base: https://<###endpoint###>.openai.azure.com/
+        api_type: azure
+        api_version: 2025-02-01-preview
+        batch_size: '1'
+        connection:
+          id: /subscriptions/<###subscription_id###>/resourceGroups/<###rg_name###>/providers/Microsoft.MachineLearningServices/workspaces/<###ws_name###>/connections/<###aoai_connection_name###>
+        connection_type: workspace_connection
+        deployment: text-embedding-3-large
+        dimension: 3072
+        kind: open_ai
+        model: text-embedding-3-large
+        schema_version: '2'
+      index:
+        api_version: 2024-05-01-preview
+        connection:
+          id: /subscriptions/<###subscription_id###>/resourceGroups/<###rg_name###>/providers/Microsoft.MachineLearningServices/workspaces/<###ws_name###>/connections/<###aisearch_connection_name###>
+        connection_type: workspace_connection
+        endpoint: https://demo-aisearch02.search.windows.net/
+        engine: azure-sdk
+        field_mapping:
+          content: content
+          embedding: contentVector
+          metadata: title
+        index: test-index
+        kind: acs
+        semantic_configuration_name: default
+    queries: ${modify_query_with_history.output}
+    query_type: Semantic
+    top_k: 3
+  use_variants: false
+- name: generate_prompt_context
+  type: python
+  source:
+    type: code
+    path: generate_prompt_context.py
+  inputs:
+    search_result: ${lookup.output}
+  use_variants: false
+- name: Prompt_variants
+  use_variants: true
+- name: chat_with_context
+  type: llm
+  source:
+    type: code
+    path: chat_with_context.jinja2
+  inputs:
+    deployment_name: gpt-4o
+    temperature: 0
+    top_p: 1
+    max_tokens: 1000
+    response_format:
+      type: text
+    presence_penalty: 0
+    frequency_penalty: 0
+    prompt_text: ${Prompt_variants.output}
+  provider: AzureOpenAI
+  connection: demoopenai02
+  api: chat
+  module: promptflow.tools.aoai
+  use_variants: false
+node_variants:
+  Prompt_variants:
+    default_variant_id: variant_0
+    variants:
+      variant_0:
+        node:
+          type: prompt
+          source:
+            type: code
+            path: Prompt_variants.jinja2
+          inputs:
+            contexts: ${generate_prompt_context.output}
+            chat_history: ${inputs.chat_history}
+            chat_input: ${inputs.chat_input}
+      variant_1:
+        node:
+          type: prompt
+          source:
+            type: code
+            path: Prompt_variants__variant_1.jinja2
+          inputs:
+            contexts: ${generate_prompt_context.output}
+            chat_history: ${inputs.chat_history}
+            chat_input: ${inputs.chat_input}
+      variant_2:
+        node:
+          type: prompt
+          source:
+            type: code
+            path: Prompt_variants__variant_2.jinja2
+          inputs:
+            contexts: ${generate_prompt_context.output}
+            chat_history: ${inputs.chat_history}
+            chat_input: ${inputs.chat_input}
