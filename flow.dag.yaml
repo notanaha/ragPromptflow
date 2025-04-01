@@ -70,13 +70,8 @@ nodes:
   inputs:
     mlindex_content: >
       embeddings:
-        api_base: https://<###endpoint###>.openai.azure.com/
-        api_type: azure
-        api_version: 2025-02-01-preview
         batch_size: '1'
-        connection:
-          id: /subscriptions/<###subscription_id###>/resourceGroups/<###rg_name###>/providers/Microsoft.MachineLearningServices/workspaces/<###ws_name###>/connections/<###aoai_connection_name###>
-        connection_type: workspace_connection
+        connection: <###aoai_local_connection_name###>
         deployment: text-embedding-3-large
         dimension: 3072
         kind: open_ai

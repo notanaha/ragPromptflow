@@ -1,23 +1,54 @@
-# Bring your own Data Chat QnA
+<span style="font-family: Calibri;">
+<h1>Preparations</h1>
+<h2>Create a conda environment</h2>
 
-This sample demonstrates **multi-round** Q&A chatbot powered by GPT. It utilizes indexed files from Azure Machine Learning to provide grounded answers. You can ask a wide range of questions related to Azure Machine Learning and receive responses. The process involves embedding the raw query, using vector search to find most relevant context in user data, and then using GPT to chat with you with the documents. This sample also contains multiple prompt variants that you can tune.
+```bash
+conda create -n pf310 python=3.10
+conda activate pf310
+```
 
-## What you will learn
+<h2>Install required packages</h2>
 
-In this flow, you will learn
+```bash
+pip install -r requirements.txt
+```
 
-* how to compose a multi-round Q&A system flow.
-* how to use vector search tool to find relevant documents and leverage domain knowledge.
-* how to tune prompt with variants.
+If above command failed 
+```bash
+pip install --no-build-isolation --no-cache-dir -r requirements.txt
+```
 
-## Prerequisites
+<h2>Setup config.json file</h2>
 
-- Connection: Azure OpenAI or OpenAI connection, with the availability of chat and embedding models/deployments.
-- To perform batch run on this sample, you can download the sample data from <a href='https://ragsample.blob.core.windows.net/ragdata/QAGenerationDataChat.jsonl' target='_blank'>here</a>.
+Edit **.azureml/config.json**
 
-## Tools used in this flow
+<h2>Install Pre-release version of promptflow extension</h2>
+<img src="./image/SwitchToPreReleaseVersion.png">
 
-* LLM tool
-* Embedding tool
-* Vector Index Lookup tool
-* Python tool
+<h2>Create connections</h2>
+
+```bash
+pf connection create -f ./connections/azure_openai.yml
+```
+Optional 
+```bash
+pf connection create -f ./connections/cognitive_search.yml
+```
+
+<h2>Create connections</h2>
+
+Edit **flow.dag.yaml**
+- <###aoai_local_connection_name###>
+- <###subscription_id###>
+- <###rg_name###>
+- <###ws_name###>
+- <###aisearch_connection_name###>
+
+<h2>Optional - login to Azure</h2>
+
+```bash
+az login [--tenant=<tenant_id>]
+az configure --defaults group=<resource_group_name> workspace=<workspace_name>
+```
+
+</span>
