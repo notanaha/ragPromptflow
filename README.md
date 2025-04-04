@@ -1,5 +1,11 @@
 <span style="font-family: Calibri;">
 <h1>Preparations</h1>
+
+<h2>Index used in this repo</h2>
+
+Complete the [ragWorkshop](https://github.com/notanaha/ragWorkshop) repository to build the index used in this repository.
+<br>The index name and field refer to the same names used in ragWorkshop.
+<br><br>
 <h2>Create a conda environment</h2>
 
 ```bash
@@ -30,12 +36,12 @@ Edit **.azureml/config.json**
 ```bash
 pf connection create -f ./connections/azure_openai.yml
 ```
-Optional 
+Optional (not used in the following flow.dag.yaml)
 ```bash
 pf connection create -f ./connections/cognitive_search.yml
 ```
 
-<h2>Create connections</h2>
+<h2>Edit flow.dag.yaml</h2>
 
 Edit **flow.dag.yaml**
 - <###aoai_local_connection_name###>
