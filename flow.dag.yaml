@@ -121,7 +121,7 @@ nodes:
     frequency_penalty: 0
     prompt_text: ${Prompt_variants.output}
   provider: AzureOpenAI
-  connection: demoopenai02
+  connection: <###aoai_local_connection_name###>
   api: chat
   module: promptflow.tools.aoai
   use_variants: false
