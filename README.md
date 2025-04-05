@@ -50,11 +50,14 @@ Edit **flow.dag.yaml**
 - <###ws_name###>
 - <###aisearch_connection_name###>
 
-<h2>Optional - login to Azure</h2>
+<h2>login to Azure</h2>
 
 ```bash
 az login [--tenant=<tenant_id>]
-az configure --defaults group=<resource_group_name> workspace=<workspace_name>
 ```
 
+In case you needed
+```bash
+az configure --defaults group=<resource_group_name> workspace=<workspace_name>
+```
 </span>
