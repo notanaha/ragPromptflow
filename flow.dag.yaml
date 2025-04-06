@@ -82,7 +82,7 @@ nodes:
         connection:
           id: /subscriptions/<###subscription_id###>/resourceGroups/<###rg_name###>/providers/Microsoft.MachineLearningServices/workspaces/<###ws_name###>/connections/<###aisearch_connection_name###>
         connection_type: workspace_connection
-        endpoint: https://demo-aisearch02.search.windows.net/
+        endpoint: <###search_endpoint###>
         engine: azure-sdk
         field_mapping:
           content: content
