@@ -6,6 +6,9 @@
 Complete the [ragWorkshop](https://github.com/notanaha/ragWorkshop) repository to build the index used in this repository.
 <br>The index name and field refer to the same names used in ragWorkshop.
 <br><br>
+<h2>Access Permission</h2>
+In AI Foundry Project, add "AzureML Data Scientist" role to your id
+<br><br>
 <h2>Create a conda environment</h2>
 
 ```bash
