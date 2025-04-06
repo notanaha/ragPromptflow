@@ -26,11 +26,19 @@ If above command failed
 ```bash
 pip install --no-build-isolation --no-cache-dir -r requirements.txt
 ```
-
+<br>
 <h2>Setup config.json file</h2>
 
 Edit **.azureml/config.json**
+```bash
+{
+    "subscription_id": "",
+    "resource_group": "",
+    "workspace_name": ""
+}
+```
 
+<br><br>
 <h2>Install Pre-release version of promptflow extension</h2>
 <img src="./image/SwitchToPreReleaseVersion.png">
 
